@@ -1,0 +1,20 @@
+{
+  "name": "PulseServer",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "binaryjs": "^0.2.1",
+    "express": "^4.13.3",
+    "lame": "^1.2.3",
+    "python": "0.0.4",
+    "python-shell": "^0.2.0",
+    "speaker": "^0.2.6",
+    "wav": "^1.0.0"
+  }
+}
