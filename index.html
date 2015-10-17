@@ -1,0 +1,29 @@
+<html>
+<head>
+  
+  <script src="binary.min.js"></script>
+  <script>
+
+    // Connect to Binary.js server
+    var client = new BinaryClient('ws://127.24.12.73:9000');
+
+    // Received new stream from server!
+    client.on('stream', function(stream, meta){    
+      // Buffer for parts
+      var parts = [];
+      // Got new data
+      stream.on('data', function(data){
+        parts.push(data);
+      });
+      stream.on('end', function(){
+        // Display new data in browser!
+        var audio = document.createElement("audio");
+        audio.src = (window.URL || window.webkitURL).createObjectURL(new Blob(parts));
+        document.body.appendChild(audio);
+      });
+    });
+  </script>
+</head>
+<body>
+</body>
+</html>
