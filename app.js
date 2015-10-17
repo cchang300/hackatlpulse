@@ -8,36 +8,32 @@ var wav = require('wav');
 var fs = require('fs');
 var vm = require('vm');
 
-var BinaryServer = require('binaryjs').BinaryServer;
-
-var includeInThisContext = function(path) {
-    var code = fs.readFileSync(path);
-    vm.runInThisContext(code, path);
-}.bind(this);
-includeInThisContext(__dirname+"/lame.all.js");
+//var BinaryServer = require('binaryjs').BinaryServer;
 
 
-app.get('/', function (req, res) {
-  res.send('Hello World!');
-});
 
-var server = app.listen(8000, function () {
-  var host = server.address().address;
-  var port = server.address().port;
+//app.get('/', function (req, res) {
+//  res.send('Hello World!');
+//});
 
-  console.log('Example app listening at http://%s:%s', host, port);
-});
-
+//var server = app.listen(8000, function () {
+//  var host = server.address().address;
+//  var port = server.address().port;
+//
+//  console.log('Example app listening at http://%s:%s', host, port);
+//});
+/**
 var pyshell = new PythonShell('audio.py');
 
 var datastream = new Stream.Writable();
 datastream._read = function noop() {}; // redundant? see update below
-
+datastream._write = function noop() {};
 
 
 pyshell.on("message", function(data){
+	//change to another stream
 	process.stdin.push(data);
-
+	//mystream.push(data);
 });
 
 
@@ -59,15 +55,6 @@ var encoder = new lame.Encoder({
  
 
  process.stdin.pipe(encoder);
-// raw PCM data from stdin gets piped into the encoder 
-
- 
-
-// the generated MP3 file gets piped to stdout 
-
-
-
-// PCM data from stdin gets piped into the speaker
 
 
 
@@ -78,7 +65,23 @@ binserv.on('connection', function(client){
   	var stream = client.createStream();
 	encoder.pipe(stream);
 });
+**/
 
+
+
+var BinaryServer = require('binaryjs').BinaryServer;
+var fs = require('fs');
+
+// Start Binary.js server
+var server = BinaryServer({port: 9000});
+console.log("server started");
+// Wait for new user connections
+server.on('connection', function(client){
+  // Stream a flower as a hello!
+  console.log("new connection");
+  var file = fs.createReadStream(__dirname + '/flower.png');
+  client.send(file); 
+});
 
 
 
