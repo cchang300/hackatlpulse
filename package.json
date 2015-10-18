@@ -15,6 +15,7 @@
     "python": "0.0.4",
     "python-shell": "^0.2.0",
     "speaker": "^0.2.6",
+    "type-of-is": "^3.4.0",
     "wav": "^1.0.0"
   }
 }
