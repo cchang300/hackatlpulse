@@ -15,6 +15,7 @@ import time
 import sys
 import numpy as np
 import os
+import base64
 from struct import *
 
 WIDTH = 2
@@ -29,35 +30,18 @@ a = open('python.pcm','w+')
 
 
 def callback(in_data, frame_count, time_info, status):
-    
-    
-
 
     #a.write(in_data);
-
+    s = []
+    
     snd_data = array('h', in_data)
     for i in snd_data:
-        print i;
-
-    #if byteorder == 'big':
-    #        snd_data.byteswap()
-    
-
-
-    #r.extend(snd_data)
-    
-    #audio_data = np.fromstring('1234', dtype=np.int16)
-    #sys.stdout.write(in_data);
-    #print 0x1234;
-    #for x in snd_data:
-    #    a.write(x);
-    #    print x;
-
-        #y.append(x);
-        #pass
+        s.append(base64.b64encode(str(i))); #shoudl be i
         
-    #np.savetxt(sys.stdout, audio_data, fmt='%i')
+
+    print("---".join(s),) #- is kind of unsafe, could be used by base64.
     
+    # to optimize this, we could use pack to have the ints directly encoded in base64
 
     return (in_data, pyaudio.paContinue)
 

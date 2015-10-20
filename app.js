@@ -26,22 +26,31 @@ var server = app.listen(8000, function () {
   console.log('Example app listening at http://%s:%s', host, port);
 });
 
-var mp3 = fs.createWriteStream('mukke.pcm');
+var mp3 = fs.createWriteStream('mukke.mp3');
 b = new Buffer(5000, 'ascii');
 var pyshell = new PythonShell('audio.py', {
-
-	mode : 'binary',
+	mode : 'string',
 	parser : function(data){
-		//now: data is  16bit int.
-		intdata = parseInt(data,10);
-		//console.log("woo");
-		//console.log(data);
-		//b.write(data, 'ascii');
-		//int16 = new Int16Array(b);
-		//console.log(int16);
-		console.log(Type.string(intdata));
-		mp3.write(intdata);
 
+		console.time("b64");
+		//input: 16bit int i:  b64(string(i))
+		input = data.split("---");
+		var nb = Buffer(4096);
+		var i = 0;
+		input.forEach(function(data){
+			
+			var b = Buffer(data, 'base64');
+			var s = b.toString('ascii')
+			var n = parseInt(s,10);
+			//console.log(n);
+			nb.writeInt16LE(n,2*i); // 2, because a 16bit int takes two bytes.
+			i++;
+		});
+		
+		
+		
+		process.stdin.push(nb);
+		console.timeEnd("b64");
 
 
 	}
@@ -58,23 +67,14 @@ var pyshell = new PythonShell('audio.py', {
 
 
 pyshell.on("message", function(data){
-	//change to another stream
-
-	//var intdata = parseInt(data,10);
-	//process.stdin.push(new Buffer(intdata));
-	//console.log("data coming");
-	//console.log(intdata);
-	//console.log(Type.string(intdata));
 	
-	//b.writeInt(0x0,0,2);
-	//mp3.write(b);
-	//b.flush(function(err,results){});
 	
 });
 
 
 
-//process.stdin.pipe(mp3);
+
+
 //----------------------// funny shit:
 
 //little endian!
@@ -90,10 +90,25 @@ var encoder = new lame.Encoder({
   mode: lame.STEREO // STEREO (default), JOINTSTEREO, DUALCHANNEL or MONO 
 });
  
+//pcm cross test:
 
- fs.createReadStream('test.pcm')
+/**
+ var input = fs.createReadStream('test.pcm')
 
-//process.stdin.pipe(encoder).pipe(mp3);
+input.on('data',function(data){
+	for (i = 0; i< data.length/2; i++){
+		console.log(data.readInt16LE(i));
+
+
+	}
+	
+	console.log("-------------");
+
+});
+**/
+
+
+process.stdin.pipe(encoder).pipe(mp3);
 
 
 /**
