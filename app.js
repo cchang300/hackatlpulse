@@ -5,19 +5,22 @@ var Stream = require('stream');
 var PythonShell = require('python-shell');
 var wav = require('wav');
 var Type = require('type-of-is');
-
+//var ogg = require('ogg');
 var fs = require('fs');
 var vm = require('vm');
-
+var timesyncServer = require('timesync/server');
 var BinaryServer = require('binaryjs').BinaryServer;
 
 app.use("/public", express.static(__dirname + '/public'));
+app.use('/timesync', timesyncServer.requestHandler);
+
+
 
 app.get('/', function (req, res) {
-  res.sendFile(__dirname + "/index2.html");
+  res.sendFile(__dirname + "/public/index.html");
   //console.log("request");
 });
-
+app.use('/timesync', timesyncServer.requestHandler);
 
 var server = app.listen(8000, function () {
   var host = server.address().address;
@@ -27,7 +30,6 @@ var server = app.listen(8000, function () {
 });
 
 var mp3 = fs.createWriteStream('mukke.mp3');
-b = new Buffer(5000, 'ascii');
 var pyshell = new PythonShell('audio.py', {
 	mode : 'string',
 	parser : function(data){
@@ -46,11 +48,16 @@ var pyshell = new PythonShell('audio.py', {
 			nb.writeInt16LE(n,2*i); // 2, because a 16bit int takes two bytes.
 			i++;
 		});
-		
-		
-		
 		process.stdin.push(nb);
-		console.timeEnd("b64");
+
+		
+		//--------------------------------------------
+		//					current implementation 3 times faster than audio stream.
+		//
+		//console.log(i);
+		
+		//console.timeEnd("b64");
+		//--------------------------------------------
 
 
 	}
@@ -66,10 +73,7 @@ var pyshell = new PythonShell('audio.py', {
 
 
 
-pyshell.on("message", function(data){
-	
-	
-});
+pyshell.on("message", function(data){ });
 
 
 
@@ -77,8 +81,8 @@ pyshell.on("message", function(data){
 
 //----------------------// funny shit:
 
-//little endian!
-var encoder = new lame.Encoder({
+
+encoder = new lame.Encoder({
   // input 
   channels: 2,        
   bitDepth: 16,       // 16-bit samples 
@@ -89,7 +93,12 @@ var encoder = new lame.Encoder({
   outSampleRate: 44100,
   mode: lame.STEREO // STEREO (default), JOINTSTEREO, DUALCHANNEL or MONO 
 });
+
+
  
+process.stdin.pipe(encoder).pipe(mp3);
+
+
 //pcm cross test:
 
 /**
@@ -108,30 +117,23 @@ input.on('data',function(data){
 **/
 
 
-process.stdin.pipe(encoder).pipe(mp3);
 
 
-/**
+
+
 
 var binserv = BinaryServer({port: 9000});
 
 binserv.on('connection', function(client){
-  	//console.log("new client connected");
+  	console.log("new client connected");
   	var stream = client.createStream();
 	encoder.pipe(stream);
 
 });
-**/
+
+
 
 encoder.on('data', function(data){
-	//console.log(Type.string(data));
-	//console.log(data.toString('binary'));
-	//data.forEach(function(d){
-	//	console.log(d);
-
-
-	//});
-	
 
 });
 /**
@@ -152,6 +154,6 @@ server.on('connection', function(client){
   client.send(file); 
 });
 
-
 **/
+
 
